@@ -103,7 +103,6 @@ public class UserUtils {
 			Picasso.with(context).load(R.drawable.default_avatar).into(imageView);
 		}
 	}
-
     /**
      * 我的设置当前登录用户头像
      * @param context 上下文参数
@@ -159,6 +158,12 @@ public class UserUtils {
         EMUser user = ((DemoHXSDKHelper)HXSDKHelper.getInstance()).getUserProfileManager().getCurrentUserInfo();
         if(textView != null){
             textView.setText(user.getNick());
+        }
+    }
+    public static void setCurrentUserBeanNick(TextView textView){
+        User user = SuperwechatApplication.getInstance().getUser();
+        if(user != null && user.getMUserNick()!=null&&textView!=null){
+            textView.setText(user.getMUserNick());
         }
     }
     /**
