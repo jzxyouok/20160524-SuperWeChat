@@ -31,6 +31,7 @@ import java.util.List;
 import cn.ucai.superwechat.bean.Contact;
 import cn.ucai.superwechat.chatuidemo.Constant;
 import cn.ucai.superwechat.chatuidemo.R;
+import cn.ucai.superwechat.chatuidemo.data.RequestManager;
 import cn.ucai.superwechat.chatuidemo.utils.UserUtils;
 
 /**
@@ -108,6 +109,7 @@ public class ContactAdapter extends BaseAdapter implements SectionIndexer{
 				//显示申请与通知item
 				holder.nameTextview.setText(user.getMUserNick());
 				holder.avatar.setDefaultImageResId(R.drawable.new_friends_icon);
+				holder.avatar.setImageUrl("", RequestManager.getImageLoader());
 				if (user.getMUserUnreadMsgCount() > 0) {
 					holder.unreadMsgView.setVisibility(View.VISIBLE);
 //			    holder.unreadMsgView.setText(user.getUnreadMsgCount()+"");
@@ -119,6 +121,7 @@ public class ContactAdapter extends BaseAdapter implements SectionIndexer{
 				//群聊item
 				holder.nameTextview.setText(user.getMUserNick());
 				holder.avatar.setDefaultImageResId(R.drawable.groups_icon);
+				holder.avatar.setImageUrl("", RequestManager.getImageLoader());
 				break;
 			default:
 				//用户好友

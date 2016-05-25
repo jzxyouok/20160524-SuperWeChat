@@ -101,7 +101,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:textColor="#0F0F0F"
-        android:text="NoResult"
+        android:text="无结果"
         android:visibility="invisible"
-        android:textSize="16sp" />
+        android:textSize="18sp" />
 </LinearLayout>

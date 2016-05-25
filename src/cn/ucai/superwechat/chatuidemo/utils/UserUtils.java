@@ -191,28 +191,30 @@ public class UserUtils {
      *  昵称为空时则根据用户名，数字开头为#，申请与通知、群聊为空
      *
      * @param username
-     * @param contact
+     * @param
      */
-    public static void setUserHead(String username,Contact contact) {
+    public static void setUserHearder(String username, Contact user) {
         String headerName = null;
-        if (!TextUtils.isEmpty(contact.getMUserNick())) {
-            headerName = contact.getMUserNick();
+        if (!TextUtils.isEmpty(user.getMUserNick())) {
+            headerName = user.getMUserNick();
         } else {
-            headerName = contact.getMContactUserName();
+            headerName = user.getMContactUserName();
         }
-        if (username.equals(Constant.NEW_FRIENDS_USERNAME)) {
-            contact.setHeader("");
+        if (username.equals(Constant.NEW_FRIENDS_USERNAME)
+                || username.equals(Constant.GROUP_USERNAME)){
+            user.setHeader("");
         } else if (Character.isDigit(headerName.charAt(0))) {
-            contact.setHeader("#");
+            user.setHeader("#");
         } else {
-            contact.setHeader(HanziToPinyin.getInstance().get(headerName.substring(0, 1)).get(0).target.substring(0, 1)
+            user.setHeader(HanziToPinyin.getInstance().get(headerName.substring(0, 1)).get(0).target.substring(0, 1)
                     .toUpperCase());
-            char header = contact.getHeader().toLowerCase().charAt(0);
+            char header = user.getHeader().toLowerCase().charAt(0);
             if (header < 'a' || header > 'z') {
-                contact.setHeader("#");
+                user.setHeader("#");
             }
         }
     }
+
 
     /**
      * Lru缓存作业ImageLoader的缓存

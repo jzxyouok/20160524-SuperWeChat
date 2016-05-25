@@ -502,6 +502,7 @@ public class ContactlistFragment extends Fragment {
 		groupUser.setMUserName(Constant.GROUP_USERNAME);
 		groupUser.setMUserNick(strGroup);
         groupUser.setMContactId(-2);
+		groupUser.setHeader("");
 		if (!mContactList.contains(groupUser)) {
 			mContactList.add(0, groupUser);
 		}
@@ -518,7 +519,7 @@ public class ContactlistFragment extends Fragment {
 		}
 		//设置排序依据，拼音按首字母排序，数字为#，申请通知、群聊为空
 		for (Contact c:mContactList) {
-			UserUtils.setUserHead(c.getMContactCname(),c);
+			UserUtils.setUserHearder(c.getMContactCname(),c);
 		}
 
 		// 排序
