@@ -61,7 +61,7 @@
             android:background="@drawable/mm_listitem"
             android:duplicateParentState="true" >
 
-            <ImageView
+            <com.android.volley.toolbox.NetworkImageView
                 android:id="@+id/avatar"
                 android:layout_width="45dp"
                 android:layout_height="45dp"
@@ -80,7 +80,6 @@
                 android:textColor="#0F0F0F"
                 android:textSize="16sp" />
 
-
             <Button
                 android:id="@+id/indicator"
                 android:layout_width="wrap_content"
@@ -96,5 +95,13 @@
                 android:textSize="14sp" />
         </RelativeLayout>
     </LinearLayout>
-
+    <TextView
+        android:id="@+id/noResult"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="#0F0F0F"
+        android:text="NoResult"
+        android:visibility="invisible"
+        android:textSize="16sp" />
 </LinearLayout>
