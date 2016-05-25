@@ -72,7 +72,7 @@ public class RegisterActivity extends BaseActivity {
     }
 
     private void setListener() {
-        mtvSetAvatar.setOnClickListener(new View.OnClickListener() {
+        mivAvatar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 avatarName = System.currentTimeMillis() + "";
