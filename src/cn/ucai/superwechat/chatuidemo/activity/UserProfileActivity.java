@@ -1,6 +1,7 @@
 package cn.ucai.superwechat.chatuidemo.activity;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,6 +11,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -17,6 +19,7 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -31,6 +34,7 @@ import com.easemob.EMValueCallBack;
 import cn.ucai.superwechat.applib.controller.HXSDKHelper;
 import com.easemob.chat.EMChatManager;
 
+import cn.ucai.superwechat.bean.Message;
 import cn.ucai.superwechat.bean.User;
 import cn.ucai.superwechat.chatuidemo.DemoHXSDKHelper;
 import cn.ucai.superwechat.chatuidemo.I;
@@ -38,9 +42,12 @@ import cn.ucai.superwechat.chatuidemo.R;
 import cn.ucai.superwechat.chatuidemo.SuperwechatApplication;
 import cn.ucai.superwechat.chatuidemo.data.ApiParams;
 import cn.ucai.superwechat.chatuidemo.data.GsonRequest;
+import cn.ucai.superwechat.chatuidemo.data.MultipartRequest;
+import cn.ucai.superwechat.chatuidemo.data.RequestManager;
 import cn.ucai.superwechat.chatuidemo.db.UserDao;
 import cn.ucai.superwechat.chatuidemo.domain.EMUser;
 import cn.ucai.superwechat.chatuidemo.listener.OnSetAvatarListener;
+import cn.ucai.superwechat.chatuidemo.utils.ImageUtils;
 import cn.ucai.superwechat.chatuidemo.utils.UserUtils;
 import cn.ucai.superwechat.chatuidemo.utils.Utils;
 
@@ -78,8 +85,7 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 		iconRightArrow = (ImageView) findViewById(R.id.ic_right_arrow);
 		mContext = this;
 		mActivity=this;
-		UserUtils.setMCurrentUserAvatar(mContext,headAvatar);
-		avatarName= System.currentTimeMillis()+"";
+
 	}
 
 	private void initListener() {
@@ -112,7 +118,7 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 		switch (v.getId()) {
 		case R.id.user_head_avatar:
 			//uploadHeadPhoto();
-			mOnSetAvatarListener=new OnSetAvatarListener(mActivity,R.id.layout_upate_avatar,avatarName,I.AVATAR_TYPE_USER_PATH);
+			mOnSetAvatarListener=new OnSetAvatarListener(mActivity,R.id.layout_upate_avatar,getavatarName(),I.AVATAR_TYPE_USER_PATH);
 			break;
 		case R.id.rl_nickname:
 			final EditText editText = new EditText(this);
@@ -136,7 +142,6 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 		}
 
 	}
-
 	private void updateUserNick(final String nickString) {
 		try {
 			String path=new ApiParams()
@@ -246,6 +251,7 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 							tvNickName.setText(nickName);
 							SuperwechatApplication.currentUserNick=nickName;
 							User user=SuperwechatApplication.getInstance().getUser();
+							Log.e("myerror",user.toString());
 							user.setMUserNick(nickName);
 							UserDao userDao=new UserDao(mContext);
 							userDao.updateUser(user);
@@ -255,6 +261,10 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 			}
 		}).start();
 	}
+	private final String boundary = "apiclient-" + System.currentTimeMillis();
+	private final String mimeType = "multipart/form-data;boundary=" + boundary;
+     byte[] mutipartBody;
+	 Bitmap bitmap;
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -273,21 +283,61 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 //		default:
 //			break;
 //		}
+
 		super.onActivityResult(requestCode, resultCode, data);
-		if(resultCode!=RESULT_OK){
+		if (resultCode != RESULT_OK) {
 			return;
-		}else{
-			mOnSetAvatarListener.setAvatar(requestCode,data,headAvatar);
-			if(requestCode==OnSetAvatarListener.REQUEST_CROP_PHOTO){
-				updateUserAvatar();
-			}
+		}
+		mOnSetAvatarListener.setAvatar(requestCode,data,headAvatar);
+		if (requestCode == OnSetAvatarListener.REQUEST_CROP_PHOTO) {
+			updateUserAvatar();
 		}
 	}
 
 	private void updateUserAvatar() {
-
+		dialog = ProgressDialog.show(this, getString(R.string.dl_update_photo), getString(R.string.dl_waiting));
+		dialog.show();
+		File file=new File(ImageUtils.getAvatarPath(mContext,I.AVATAR_TYPE_USER_PATH),avatarName+I.AVATAR_SUFFIX_JPG);
+		String path=file.getAbsolutePath();
+		bitmap= BitmapFactory.decodeFile(path);
+		mutipartBody=getImageBytes(bitmap);
+		String url=null;
+		try {
+			url = new ApiParams()
+					.with(I.AVATAR_TYPE, I.AVATAR_TYPE_USER_PATH)
+					.with(I.User.USER_NAME, SuperwechatApplication.getInstance().getUserName())
+					.getRequestUrl(I.REQUEST_UPLOAD_AVATAR);
+			executeRequest(new MultipartRequest<Message>(url, Message.class, null,
+					responseUpdateUserAvatarListener(path), errorListener(), mimeType, mutipartBody));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
+	private Response.Listener<Message> responseUpdateUserAvatarListener(final String path) {
+		return new Response.Listener<Message>() {
+			@Override
+			public void onResponse(Message message) {
+				if(message.isResult()){
+					RequestManager.getRequestQueue().getCache().remove(UserUtils.getAvatarPath(SuperwechatApplication.getInstance().getUserName()));
+					UserUtils.setMCurrentUserAvatar(mContext,headAvatar);
+				}else{
+					UserUtils.setMCurrentUserAvatar(mContext,headAvatar);
+						Toast.makeText(UserProfileActivity.this, getString(R.string.toast_updatephoto_fail),
+								Toast.LENGTH_SHORT).show();
+				}
+					dialog.dismiss();
+			}
+		};
+	}
+
+	public byte[] getImageBytes(Bitmap bmp){
+		if(bmp==null)return null;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		bmp.compress(Bitmap.CompressFormat.JPEG,100,baos);
+		byte[] imageBytes = baos.toByteArray();
+		return imageBytes;
+	}
 	public void startPhotoZoom(Uri uri) {
 		Intent intent = new Intent("com.android.camera.action.CROP");
 		intent.setDataAndType(uri, "image/*");
@@ -351,5 +401,9 @@ public class UserProfileActivity extends BaseActivity implements OnClickListener
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
 		return baos.toByteArray();
+	}
+
+	public String getavatarName() {
+		 avatarName= System.currentTimeMillis()+"";return avatarName;
 	}
 }

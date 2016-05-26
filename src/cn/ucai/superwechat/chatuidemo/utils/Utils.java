@@ -1,6 +1,7 @@
 package cn.ucai.superwechat.chatuidemo.utils;
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -53,6 +54,7 @@ public class Utils {
         String msgStr = msg+"";
         msgStr = I.MSG_PREFIX_MSG + msgStr;
         int resId = context.getResources().getIdentifier(msgStr, "string", context.getPackageName());
+        Log.i("myerror",context.getResources().getString(resId));
         return context.getResources().getString(resId);
     }
 }

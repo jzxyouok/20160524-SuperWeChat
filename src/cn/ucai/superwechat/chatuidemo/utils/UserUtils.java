@@ -214,6 +214,10 @@ public class UserUtils {
         }
     }
 
+    public static String getAvatarPath(String userName) {
+        if(userName==null || userName.isEmpty())return null;
+        return I.REQUEST_DOWNLOAD_AVATAR_USER + userName;
+    }
 
     /**
      * Lru缓存作业ImageLoader的缓存
