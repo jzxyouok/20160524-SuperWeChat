@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#eff2f6"
+    android:id="@+id/layout_upate_avatar"
     android:orientation="vertical" >
     
 	<RelativeLayout
