@@ -28,8 +28,11 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.easemob.util.EMLog;
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.ucai.superwechat.applib.controller.HXSDKHelper;
 import cn.ucai.superwechat.bean.Contact;
 import cn.ucai.superwechat.chatuidemo.Constant;
+import cn.ucai.superwechat.chatuidemo.DemoHXSDKHelper;
 import cn.ucai.superwechat.chatuidemo.R;
 import cn.ucai.superwechat.chatuidemo.data.RequestManager;
 import cn.ucai.superwechat.chatuidemo.utils.UserUtils;
@@ -110,7 +113,9 @@ public class ContactAdapter extends BaseAdapter implements SectionIndexer{
 				holder.nameTextview.setText(user.getMUserNick());
 				holder.avatar.setDefaultImageResId(R.drawable.new_friends_icon);
 				holder.avatar.setImageUrl("", RequestManager.getImageLoader());
-				if (user.getMUserUnreadMsgCount() > 0) {
+				int unreadAddressCountTotal = ((DemoHXSDKHelper) HXSDKHelper.getInstance()).getContactList().get(Constant.NEW_FRIENDS_USERNAME)
+						.getUnreadMsgCount();
+				if (user.getMUserUnreadMsgCount() > 0||unreadAddressCountTotal>0) {
 					holder.unreadMsgView.setVisibility(View.VISIBLE);
 //			    holder.unreadMsgView.setText(user.getUnreadMsgCount()+"");
 				} else {
